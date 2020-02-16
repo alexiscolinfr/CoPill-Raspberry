@@ -1,23 +1,46 @@
 import mysql.connector
-from mysql.connector import Error
 
-try:
-    connection = mysql.connector.connect(host='remotemysql.com',
-                                         database='nJ0WpEGDZS',
-                                         user='nJ0WpEGDZS',
-                                         password='N3VwWDg1hg')
-    if connection.is_connected():
-        db_Info = connection.get_server_info()
-        print("Connected to MySQL Server version ", db_Info)
-        cursor = connection.cursor()
-        cursor.execute("select database();")
-        record = cursor.fetchone()
-        print("You're connected to database: ", record)
+config = {
+  'user': 'nJ0WpEGDZS',
+  'password': 'N3VwWDg1hg',
+  'host': 'remotemysql.com',
+  'database': 'nJ0WpEGDZS',
+  'raise_on_warnings': True
+}
 
-except Error as e:
-    print("Error while connecting to MySQL", e)
-finally:
-    if (connection.is_connected()):
-        cursor.close()
-        connection.close()
-        print("MySQL connection is closed")
+class ConnectionManager:
+    def __init__(self):
+        self._conn = mysql.connector.connect(**config)
+        self._cursor = self._conn.cursor()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.commit()
+        self.cursor.close()
+        self.connection.close()
+
+    @property
+    def connection(self):
+        return self._conn
+
+    @property
+    def cursor(self):
+        return self._cursor
+
+    def commit(self):
+        self.connection.commit()
+
+    def execute(self, sql, params=None):
+        self.cursor.execute(sql, params or ())
+
+    def fetchall(self):
+        return self.cursor.fetchall()
+
+    def fetchone(self):
+        return self.cursor.fetchone()
+
+    def query(self, sql, params=None):
+        self.cursor.execute(sql, params or ())
+        return self.fetchall()

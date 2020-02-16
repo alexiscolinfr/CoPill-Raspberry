@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-
 from time import sleep
 from neopixel import *
-import argparse
 import RPi.GPIO as GPIO
 import random
 
@@ -54,6 +51,13 @@ GREEN = Color(  0,255,  0)
 BLUE  = Color(  0,  0,255)
 WHITE = Color(  0,  0,  0)
 
+def getStrip():
+     # Create NeoPixel object with appropriate configuration.
+    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
+    return strip
+
 def setLedColor(strip, led, color):
     strip.setPixelColor(led-1, color)
     strip.show()
@@ -84,56 +88,3 @@ def setAllLedRandColor(strip):
     rand3 = random.randint(0,255)
     setAllLedColor(strip, Color(rand1,rand2,rand3))
     sleep(0.2)
-
-# Main program logic follows:
-if __name__ == '__main__':
-    # Process arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-    args = parser.parse_args()
-
-    # Create NeoPixel object with appropriate configuration.
-    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
-
-    print ('Press Ctrl-C to quit.')
-    if not args.clear:
-        print('Use "-c" argument to clear LEDs on exit')
-
-    try:
-        print('Press a touch sensor')
-        setAllLedColor(strip,RED)
-        while True:
-
-            if GPIO.input(TOUCH_PIN_1) == GPIO.HIGH:
-                validation(strip,1)
-
-            if GPIO.input(TOUCH_PIN_2) == GPIO.HIGH:
-                validation(strip,2)
-
-            if GPIO.input(TOUCH_PIN_3) == GPIO.HIGH:
-                validation(strip,3)
-
-            if GPIO.input(TOUCH_PIN_4) == GPIO.HIGH:
-                validation(strip,4)
-
-            if GPIO.input(TOUCH_PIN_5) == GPIO.HIGH:
-                validation(strip,5)
-
-            if GPIO.input(TOUCH_PIN_6) == GPIO.HIGH:
-                validation(strip,6)
-
-            if GPIO.input(TOUCH_PIN_7) == GPIO.HIGH:
-                validation(strip,7)
-
-            if GPIO.input(BUTTON_PIN_1) == GPIO.HIGH:
-                setAllLedRandColor(strip)
-
-            if GPIO.input(BUTTON_PIN_2) == GPIO.HIGH:
-                setAllLedColor(strip,WHITE)
-
-
-    except KeyboardInterrupt:
-        if args.clear:
-            setAllLedColor(strip,WHITE)
