@@ -1,6 +1,6 @@
-import connectionManager
+from connectionManager import *
+from raspberryConfiguration import *
 import argparse
-import raspberryConfiguration
 
 if __name__ == '__main__':
     # Process arguments
@@ -15,10 +15,10 @@ if __name__ == '__main__':
         print('Use "-c" argument to clear LEDs on exit')
 
     try:
-		with ConnectionManager() as db:
-    		#db.execute('INSERT INTO comments (username, comment_body, date_posted) VALUES (?, ?, current_date)', ('tom', 'this is a comment'))
-    		comments = db.query('SELECT * FROM user')
-    		print(comments)
+        with ConnectionManager() as db:
+            #db.execute('INSERT INTO comments (username, comment_body, date_posted) VALUES (?, ?, current_date)', ('tom', 'this is a comment'))
+            users = db.query('SELECT * FROM user')
+            print(users)
 
         print('Press a touch sensor')
         setAllLedColor(strip,RED)
