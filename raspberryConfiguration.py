@@ -74,8 +74,11 @@ def validation(strip, led):
         setLedColor(strip, led, GREEN)
         buzzer()
         sleep(0.25)
-        setLedColor(strip, led, WHITE)
-        sleep(0.25)
+        if i==2:
+            setLedColor(strip, led, GREEN)
+        else:
+            setLedColor(strip, led, RED)
+            sleep(0.25)
 
 def setAllLedColor(strip, color):
     for i in range(strip.numPixels()):
