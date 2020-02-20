@@ -10,8 +10,10 @@ config = {
 
 class ConnectionManager:
     def __init__(self):
+        print ('ConnectionManager : connection...')
         self._conn = mysql.connector.connect(**config)
         self._cursor = self._conn.cursor()
+        print ('ConnectionManager : connected')
 
     def __enter__(self):
         return self
@@ -20,6 +22,7 @@ class ConnectionManager:
         self.commit()
         self.cursor.close()
         self.connection.close()
+        print ('ConnectionManager : disconnected')
 
     @property
     def connection(self):

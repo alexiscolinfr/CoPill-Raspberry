@@ -1,7 +1,13 @@
 from time import sleep
 from neopixel import *
 import RPi.GPIO as GPIO
-import random
+
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_SSD1306
+
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 # LED strip configuration:
 LED_COUNT      = 7       # Number of LED pixels.
@@ -11,6 +17,9 @@ LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
 LED_BRIGHTNESS = 200     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+
+strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+strip.begin()
 
 # Touch Sensor configuration:
 TOUCH_PIN_1 = 5
@@ -32,7 +41,7 @@ GPIO.setup(TOUCH_PIN_6, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(TOUCH_PIN_7, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Buzzer configuration
-SPEAKER_PIN = 2
+SPEAKER_PIN = 4
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SPEAKER_PIN, GPIO.OUT)
@@ -45,22 +54,25 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON_PIN_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(BUTTON_PIN_2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# OLED Display configuration
+DISPLAY_PIN = 24
+disp = Adafruit_SSD1306.SSD1306_128_64(rst=DISPLAY_PIN)
+disp.begin() 
+
 # Color
 RED   = Color(255,  0,  0)
 GREEN = Color(  0,255,  0)
 BLUE  = Color(  0,  0,255)
 WHITE = Color(  0,  0,  0)
 
-def getStrip():
-     # Create NeoPixel object with appropriate configuration.
-    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
-    return strip
-
-def setLedColor(strip, led, color):
+def setLedColor(led, color):
     strip.setPixelColor(led-1, color)
     strip.show()
+
+def setAllLedColor(color):
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, color)
+        strip.show()
 
 def buzzer():
     for i in range(25):
@@ -69,25 +81,37 @@ def buzzer():
         GPIO.output(SPEAKER_PIN, False)
         sleep(0.005)
 
-def validation(strip, led):
+def validation(led):
     for i in range(3):
-        setLedColor(strip, led, GREEN)
+        setLedColor(led, GREEN)
         buzzer()
         sleep(0.25)
         if i==2:
-            setLedColor(strip, led, GREEN)
+            setLedColor(led, GREEN)
         else:
-            setLedColor(strip, led, RED)
+            setLedColor(led, RED)
             sleep(0.25)
 
-def setAllLedColor(strip, color):
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i, color)
-        strip.show()
+def loadscreen():
+    disp.clear()
+    disp.display()
+    image = Image.open('logo.ppm').convert('1')
+    disp.image(image)
+    disp.display()
 
-def setAllLedRandColor(strip):
-    rand1 = random.randint(0,255)
-    rand2 = random.randint(0,255)
-    rand3 = random.randint(0,255)
-    setAllLedColor(strip, Color(rand1,rand2,rand3))
-    sleep(0.2)
+def clearscreen():
+    disp.clear()
+    disp.display()
+
+def helloWord():
+    disp.clear()
+    disp.display()
+    width = disp.width
+    height = disp.height
+    image = Image.new('1', (width, height))
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+    draw.text((0,0),'Hello',font=font,fill=255)
+    draw.text((0,10),'World!',font=font,fill=255)
+    disp.image(image)
+    disp.display()
