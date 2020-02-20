@@ -1,10 +1,10 @@
 import mysql.connector
 
 config = {
-  'user': 'nJ0WpEGDZS',
-  'password': 'N3VwWDg1hg',
-  'host': 'remotemysql.com',
-  'database': 'nJ0WpEGDZS',
+  'user': 'miage2020',
+  'password': 'k5HKw26D4x',
+  'host': 'db4free.net',
+  'database': 'copill_db',
   'raise_on_warnings': True
 }
 
