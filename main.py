@@ -95,7 +95,7 @@ def save_log(day):
     timestamp = datetime.now()
     with ConnectionManager() as db:
         db.execute('UPDATE log SET timestamp=%s WHERE day=%s',(timestamp,day))
-    print ('log saved : '+day+' -  '+str(timestamp))
+    print ('log saved')
 
 if __name__ == '__main__':
     # Process arguments
@@ -161,9 +161,11 @@ if __name__ == '__main__':
 
             if GPIO.input(BUTTON_PIN_1) == GPIO.HIGH:
                 pillsList = update(pillsList)
+                loadscreen()
 
             if GPIO.input(BUTTON_PIN_2) == GPIO.HIGH:
                 setAllLedColor(WHITE)
+                clearscreen()
 
     except KeyboardInterrupt:
         if args.clear:

@@ -23,13 +23,13 @@ strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, 
 strip.begin()
 
 # Touch Sensor configuration:
-TOUCH_PIN_1 = 5
-TOUCH_PIN_2 = 19
-TOUCH_PIN_3 = 20
+TOUCH_PIN_1 = 15
+TOUCH_PIN_2 = 26
+TOUCH_PIN_3 = 25
 TOUCH_PIN_4 = 21
-TOUCH_PIN_5 = 25
-TOUCH_PIN_6 = 26
-TOUCH_PIN_7 = 15
+TOUCH_PIN_5 = 20
+TOUCH_PIN_6 = 19
+TOUCH_PIN_7 = 5
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
