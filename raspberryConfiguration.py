@@ -1,6 +1,7 @@
 from time import sleep
 from neopixel import *
 import RPi.GPIO as GPIO
+import textwrap
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -65,8 +66,19 @@ GREEN = Color(  0,255,  0)
 BLUE  = Color(  0,  0,255)
 WHITE = Color(  0,  0,  0)
 
+def setLedsColor(pillsList):
+    led = 0
+    for pills in pillsList:
+        if pills == 'yes':
+            strip.setPixelColor(led,RED)
+            strip.show()
+        else :
+            strip.setPixelColor(led,GREEN)
+            strip.show()
+        led += 1
+
 def setLedColor(led, color):
-    strip.setPixelColor(led-1, color)
+    strip.setPixelColor(led-1,color)
     strip.show()
 
 def setAllLedColor(color):
@@ -81,7 +93,8 @@ def buzzer():
         GPIO.output(SPEAKER_PIN, False)
         sleep(0.005)
 
-def validation(led):
+def validation(led,text):
+    textscreen(text)
     for i in range(3):
         setLedColor(led, GREEN)
         buzzer()
@@ -103,7 +116,8 @@ def clearscreen():
     disp.clear()
     disp.display()
 
-def helloWord():
+def textscreen(text):
+    print (text)
     disp.clear()
     disp.display()
     width = disp.width
@@ -111,7 +125,13 @@ def helloWord():
     image = Image.new('1', (width, height))
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
-    draw.text((0,0),'Hello',font=font,fill=255)
-    draw.text((0,10),'World!',font=font,fill=255)
+
+    y=0
+    wrapper = textwrap.TextWrapper(width=22)
+    word_list = wrapper.wrap(text)
+    for element in word_list:
+        draw.text((0,y),element,font=font,fill=255)
+        y+=10
+
     disp.image(image)
     disp.display()

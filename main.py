@@ -1,67 +1,101 @@
 from connectionManager import *
 from raspberryConfiguration import *
 import argparse
-from datetime import datetime
+from datetime import datetime,timedelta
 
 def update(pillsList):
+
     with ConnectionManager() as db:
 
-        monday = db.query("SELECT id FROM treatment WHERE days LIKE '%MONDAY%'")
-        if len(monday)>0:
-            pillsList[0]='yes'
-            setLedColor(1,RED)
+        #MONDAY
+        mondayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%MONDAY%'")
+        if len(mondayHours)>0:
+            mondayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'monday'")
+            logTime = datetimeToTimedelta(mondayLogHour[0][0])
+            pillsList[0] = pillsVerification(mondayHours,logTime)
         else:
-            setLedColor(1,GREEN)
+            pillsList[0]='no'
 
-        tuesday = db.query("SELECT id FROM treatment WHERE days LIKE '%TUESDAY%'")
-        if len(tuesday)>0:
-            pillsList[1]='yes'
-            setLedColor(2,RED)
+        #TUESDAY
+        tuesdayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%TUESDAY%'")
+        if len(tuesdayHours)>0:
+            tuesdayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'tuesday'")
+            logTime = datetimeToTimedelta(tuesdayLogHour[0][0])
+            pillsList[1] = pillsVerification(tuesdayHours,logTime)
         else:
-            setLedColor(2,GREEN)
+            pillsList[1]='no'
 
-        wednesday = db.query("SELECT id FROM treatment WHERE days LIKE '%WEDNESDAY%'")
-        if len(wednesday)>0:
-            pillsList[2]='yes'
-            setLedColor(3,RED)
+        #WEDNESDAY
+        wednesdayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%WEDNESDAY%'")
+        if len(wednesdayHours)>0:
+            wednesdayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'wednesday'")
+            logTime = datetimeToTimedelta(wednesdayLogHour[0][0])
+            pillsList[2] = pillsVerification(wednesdayHours,logTime)
         else:
-            setLedColor(3,GREEN)
+            pillsList[2]='no'
 
-        thursday = db.query("SELECT id FROM treatment WHERE days LIKE '%THURSDAY%'")
-        if len(thursday)>0:
-            pillsList[3]='yes'
-            setLedColor(4,RED)
+        #THURSDAY
+        thursdayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%THURSDAY%'")
+        if len(thursdayHours)>0:
+            thursdayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'thursday'")
+            logTime = datetimeToTimedelta(thursdayLogHour[0][0])
+            pillsList[3] = pillsVerification(thursdayHours,logTime)
         else:
-            setLedColor(4,GREEN)
+            pillsList[3]='no'
 
-        friday = db.query("SELECT id FROM treatment WHERE days LIKE '%FRIDAY%'")
-        if len(friday)>0:
-            pillsList[4]='yes'
-            setLedColor(5,RED)
+        #FRIDAY
+        fridayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%FRIDAY%'")
+        if len(fridayHours)>0:
+            fridayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'friday'")
+            logTime = datetimeToTimedelta(fridayLogHour[0][0])
+            pillsList[4] = pillsVerification(fridayHours,logTime)
         else:
-            setLedColor(5,GREEN)
+            pillsList[4]='no'
 
-        saturday = db.query("SELECT id FROM treatment WHERE days LIKE '%SATURDAY%'")
-        if len(saturday)>0:
-            pillsList[5]='yes'
-            setLedColor(6,RED)
+        #SATURDAY
+        saturdayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%SATURDAY%'")
+        if len(saturdayHours)>0:
+            saturdayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'saturday'")
+            logTime = datetimeToTimedelta(saturdayLogHour[0][0])
+            pillsList[5] = pillsVerification(saturdayHours,logTime)
         else:
-            setLedColor(6,GREEN)
+            pillsList[5]='no'
 
-        sunday = db.query("SELECT id FROM treatment WHERE days LIKE '%SUNDAY%'")
-        if len(sunday)>0:
-            pillsList[6]='yes'
-            setLedColor(7,RED)
+        #SUNDAY
+        sundayHours = db.query("SELECT hour FROM treatment WHERE days LIKE '%SUNDAY%'")
+        if len(sundayHours)>0:
+            sundayLogHour = db.query("SELECT timestamp FROM log WHERE day = 'sunday'")
+            logTime = datetimeToTimedelta(sundayLogHour[0][0])
+            pillsList[6] = pillsVerification(sundayHours,logTime)
         else:
-            setLedColor(7,GREEN)
+            pillsList[6]='no'
+
+    setLedsColor(pillsList)
 
     return pillsList
+
+def datetimeToTimedelta(datetime):
+    return  timedelta(hours=datetime.hour, minutes=datetime.minute, seconds=datetime.second)
+
+def pillsVerification(dayHours,dayLogTime):
+    now = datetimeToTimedelta(datetime.now())
+    upToDate = True
+    result = None
+    for hour in dayHours:
+        if dayLogTime <  hour[0] and hour[0] < now:
+            upToDate = False
+            break
+    if upToDate:
+        result='no'
+    else:
+        result='yes'
+    return result
 
 def save_log(day):
     timestamp = datetime.now()
     with ConnectionManager() as db:
-        db.execute('INSERT INTO log (id, day, timestamp) VALUES (null, %s, %s)',(day,timestamp))
-    print ('log saved')
+        db.execute('UPDATE log SET timestamp=%s WHERE day=%s',(timestamp,day))
+    print ('log saved : '+day+' -  '+str(timestamp))
 
 if __name__ == '__main__':
     # Process arguments
@@ -85,51 +119,44 @@ if __name__ == '__main__':
 
             if GPIO.input(TOUCH_PIN_1) == GPIO.HIGH:
                 if pillsList[0] == 'yes':
-                    print ('Monday pills were taken')
                     pillsList[0] = 'no'
-                    validation(1)
+                    validation(1,'Monday pills were taken')
                     save_log('monday')
 
             if GPIO.input(TOUCH_PIN_2) == GPIO.HIGH:
                 if pillsList[1] == 'yes':
-                    print ('Tuesday pills were taken')
                     pillsList[1] = 'no'
-                    validation(2)
+                    validation(2,'Tuesday pills were taken')
                     save_log('tuesday')
 
             if GPIO.input(TOUCH_PIN_3) == GPIO.HIGH:
                 if pillsList[2] == 'yes':
-                    print ('Wednesday pills were taken')
                     pillsList[2] = 'no'
-                    validation(3)
+                    validation(3,'Wednesday pills were taken')
                     save_log('wednesday')
 
             if GPIO.input(TOUCH_PIN_4) == GPIO.HIGH:
                 if pillsList[3] == 'yes':
-                    print ('Thursday pills were taken')
                     pillsList[3] = 'no'
-                    validation(4)
+                    validation(4,'Thursday pills were taken')
                     save_log('thursday')
 
             if GPIO.input(TOUCH_PIN_5) == GPIO.HIGH:
                 if pillsList[4] == 'yes':
-                    print ('Friday pills were taken')
                     pillsList[4] = 'no'
-                    validation(5)
+                    validation(5,'Friday pills were taken')
                     save_log('friday')
 
             if GPIO.input(TOUCH_PIN_6) == GPIO.HIGH:
                 if pillsList[5] == 'yes':
-                    print ('Saturday pills were taken')
                     pillsList[5] = 'no'
-                    validation(6)
+                    validation(6,'Saturday pills were taken')
                     save_log('saturday')
 
             if GPIO.input(TOUCH_PIN_7) == GPIO.HIGH:
                 if pillsList[6] == 'yes':
-                    print ('Sunday pills were taken')
                     pillsList[6] = 'no'
-                    validation(7)
+                    validation(7,'Sunday pills were taken')
                     save_log('sunday')
 
             if GPIO.input(BUTTON_PIN_1) == GPIO.HIGH:
