@@ -58,7 +58,7 @@ GPIO.setup(BUTTON_PIN_2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # OLED Display configuration
 DISPLAY_PIN = 24
 disp = Adafruit_SSD1306.SSD1306_128_64(rst=DISPLAY_PIN)
-disp.begin() 
+disp.begin()
 
 # Color
 RED   = Color(255,  0,  0)
@@ -66,10 +66,20 @@ GREEN = Color(  0,255,  0)
 BLUE  = Color(  0,  0,255)
 WHITE = Color(  0,  0,  0)
 
-def setLedsColor(pillsList):
+def setLedsColor(pillsList,now):
     led = 0
-    for pills in pillsList:
-        if pills == 'yes':
+    index = 0
+    upToDate = [True]*7
+
+    for day in pillsList:
+        for hour in day:
+            if hour < now:
+                upToDate[index] = False
+                break
+        index += 1
+
+    for day in upToDate:
+        if day == False:
             strip.setPixelColor(led,RED)
             strip.show()
         else :
@@ -103,6 +113,18 @@ def validation(led,text):
             setLedColor(led, GREEN)
         else:
             setLedColor(led, RED)
+            sleep(0.25)
+
+def notification(led,text):
+    textscreen(text)
+    for i in range(5):
+        setLedColor(led, BLUE)
+        buzzer()
+        sleep(0.25)
+        if i==4:
+            setLedColor(led, RED)
+        else:
+            setLedColor(led, GREEN)
             sleep(0.25)
 
 def loadscreen():
