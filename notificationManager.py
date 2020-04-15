@@ -1,10 +1,9 @@
 from pyfcm import FCMNotification
- 
-push_service = FCMNotification(api_key="AAAAQ_-N2mc:APA91bFgZmrXv3IB2SRTVhJwJspfMcZ7Qi3nfEn1BQfRdz476kb84ZgIz9VKT8lS3kELPTOD0Fh_9v5AIAasVI7S-akzPCX1uLwqcz14Q0gMj6JK2BC1G52TG7TGlraIrNUMkiXWPmep")
- 
+
+api_key = "AAAAQ_-N2mc:APA91bFgZmrXv3IB2SRTVhJwJspfMcZ7Qi3nfEn1BQfRdz476kb84ZgIz9VKT8lS3kELPTOD0Fh_9v5AIAasVI7S-akzPCX1uLwqcz14Q0gMj6JK2BC1G52TG7TGlraIrNUMkiXWPmep"
 registration_id = "dm_HzQMATwWBJnThtxtRBS:APA91bH5Z5jpfc1MZe5gFIXyYc7tDT3YCsZXaQyLYj3XiO7ERdcmpOkeiuGJom0l0EogufqJCCUACorWJ3Sml7gtsM7jYVtgmxGmuPtc807HFcmOF8pA_eQ8LYZdPI24zdVp3qo8Xmet"
-message_title = "Uber update"
-message_body = "Hi john, your customized news for today is ready"
-result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
- 
-print result
+message_title = "Vous avez un medicament a prendre !"
+
+def sendAppNotification(message_body):
+    push_service = FCMNotification(api_key)
+    push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)

@@ -1,5 +1,6 @@
 from connectionManager import *
 from raspberryConfiguration import *
+from notificationManager import *
 import argparse
 from datetime import datetime,timedelta
 
@@ -83,7 +84,10 @@ def notification_checks(pillsList):
     weekday = datetime.now().weekday()
     for pillHour in pillsList[weekday]:
         if (now == pillHour):
-            notification(weekday+1,"You have a pill to take!")
+            h = str(pillHour.seconds//3600)
+            m = str((pillHour.seconds%3600)//60)
+            notification(weekday+1,"You have your "+h+":"+m+" pill to take!")
+            sendAppNotification("Medicament de "+h+":"+m)
 
 if __name__ == '__main__':
     # Process arguments
